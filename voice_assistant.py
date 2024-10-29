@@ -1,14 +1,12 @@
 import speech_recognition as sr
 import pyttsx3
-import datetime
-import webbrowser
 import random
 
-
+# Basic greetings for chatbot functionality
 GREETING_KEYWORDS = ("hello", "hi", "greetings", "sup", "what's up")
 GREETING_RESPONSES = ["Hello!", "Hey!", "Hi there!", "Greetings!", "How can I help you?"]
 
-
+# FAQ dictionary with numbered entries
 FAQ_RESPONSES = {
     1: ("Who is eligible to donate blood?", "Generally, individuals who are healthy, at least 17 years old, and weigh at least 110 pounds are eligible. However, eligibility may vary, so please consult local guidelines."),
     2: ("How does BloodLink match donors with recipients?", "BloodLink uses a compatibility algorithm that considers blood type, location, and urgency to match donors with those in need."),
@@ -22,17 +20,17 @@ FAQ_RESPONSES = {
     10: ("What should I do in case of an emergency blood requirement?", "In case of an emergency, contact BloodLink support or check the app for urgent donation requests in your area.")
 }
 
-
+# Voice engine setup
 engine = pyttsx3.init()
-engine.setProperty('rate', 150)  
-engine.setProperty('volume', 1)  
+engine.setProperty('rate', 150)  # Speed percent (default is 200)
+engine.setProperty('volume', 1)  # Volume (0.0 to 1.0)
 
-
+# Function to speak text
 def speak(text):
     engine.say(text)
     engine.runAndWait()
 
-t
+# Function to listen to user voice input and convert it to text
 def listen():
     recognizer = sr.Recognizer()
     with sr.Microphone() as source:
@@ -49,7 +47,7 @@ def listen():
         print("Could not request results; check your network connection.")
         return None
 
-
+# Function to display FAQ list
 def list_faqs():
     faq_list = "Here are some frequently asked questions:\n"
     for i, (question, _) in FAQ_RESPONSES.items():
@@ -57,7 +55,7 @@ def list_faqs():
     faq_list += "\nSay the number of the question to get the answer or say 'back' to return to the main chat."
     return faq_list
 
-
+# Function to check for greetings
 def check_for_greeting(sentence):
     for word in sentence.split():
         if word.lower() in GREETING_KEYWORDS:
@@ -66,7 +64,7 @@ def check_for_greeting(sentence):
 
 # General response function
 def get_response(user_input, in_faq_mode):
-    
+    # Check if the user is in FAQ mode
     if in_faq_mode:
         if user_input.lower() == "back":
             return "Returning to the main chat. How can I assist you?", False
@@ -75,7 +73,7 @@ def get_response(user_input, in_faq_mode):
         else:
             return "Please say a number to get an answer or 'back' to return to the main chat.", True
 
-    
+    # If not in FAQ mode, check for greeting and FAQ command
     greeting = check_for_greeting(user_input)
     if greeting:
         return greeting, False
@@ -83,13 +81,30 @@ def get_response(user_input, in_faq_mode):
     if user_input.lower() in ("faq", "help"):
         return list_faqs(), True
 
-    
+    # Default response
     return "I'm not sure I understand. Can you ask something else?", False
 
+# Chat loop for text-based chatbot
+def text_chatbot():
+    print("You are in text-based chatbot mode. Type 'exit' to stop the chat or 'faq' to see the list of FAQs.")
+    
+    in_faq_mode = False
+    while True:
+        user_input = input("You: ")
+        
+        if user_input.lower() == 'exit':
+            print("Chatbot: Goodbye! Have a great day!")
+            speak("Goodbye! Have a great day!")
+            break
+        
+        response, in_faq_mode = get_response(user_input, in_faq_mode)
+        print("Chatbot:", response)
+        speak(response)
 
+# Chat loop with voice input and output
 def voice_chatbot():
-    print("Hello! I'm a voice-enabled chatbot. Say 'exit' to stop the chat or 'faq' to see the list of FAQs.")
-    speak("Hello! I'm a voice-enabled chatbot. Say 'exit' to stop the chat or 'faq' to see the list of FAQs.")
+    print("You are in voice-enabled chatbot mode. Say 'exit' to stop the chat or 'faq' to see the list of FAQs.")
+    speak("You are in voice-enabled chatbot mode. Say 'exit' to stop the chat or 'faq' to see the list of FAQs.")
     
     in_faq_mode = False
     while True:
@@ -108,5 +123,23 @@ def voice_chatbot():
         print("Chatbot:", response)
         speak(response)
 
+# Main function to choose mode
+def main():
+    print("Welcome to BloodLink Assistant!")
+    speak("Welcome to BloodLink Assistant! Type 'text' for text-based chatbot or 'voice' for voice assistant.")
+    
+    while True:
+        mode = input("Choose your mode (text/voice): ").strip().lower()
+        if mode == "text":
+            text_chatbot()
+            break
+        elif mode == "voice":
+            voice_chatbot()
+            break
+        else:
+            print("Invalid option. Please type 'text' or 'voice'.")
+            speak("Invalid option. Please type 'text' or 'voice'.")
 
-voice_chatbot()
+# Run the main function
+if __name__ == "__main__":
+    main()
